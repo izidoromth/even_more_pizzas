@@ -32,11 +32,27 @@ def getTeamsCount(teams_list):
         sum += n
     return sum
 
+def evaluatePizzas(pizzas):
+    all_ingredients = []
+    for p in pizzas:
+        for i in p.ingredients:
+            if (i in all_ingredients):
+                ing_idx = all_ingredients.index(i)+1
+                all_ingredients[ing_idx] = all_ingredients[ing_idx]+1
+            else:
+                all_ingredients.append(i)
+                all_ingredients.append(1)
+    for p in pizzas:
+        for i in p.ingredients:
+            ing_idx = all_ingredients.index(i)+1
+            p.value += all_ingredients[ing_idx]
+
 content = getFileContent("a_example")
 teams = getTeams(content) 
 pizzasCount = getPizzasCount(content)
 teamsCount = getTeamsCount(teams)
 
 pizzas = getPizzas(content)
+evaluatePizzas(pizzas)
 
 a = 0
