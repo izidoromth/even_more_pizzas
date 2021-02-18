@@ -15,7 +15,6 @@ def findAllPaths(node, paths):
         for c in node.child:
             findAllPaths(c, paths)
 
-
 def getPath(node):
     path = []
     aux = node
