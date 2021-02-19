@@ -55,7 +55,7 @@ def createDeliveryPossibilitiesByLevel(teams, level):
     return child
 
 
-def findAllPaths(root, paths, level):
+def findTreePaths(root, paths, level):
     for i in range(1, level + 2):
 
         path = getPath(root, i)
@@ -64,7 +64,7 @@ def findAllPaths(root, paths, level):
             paths.append(path)
 
         for child in root.child:
-            findAllPaths(child, paths, level+1)
+            findTreePaths(child, paths, level+1)
 
 
 def getPath(child, depth):
