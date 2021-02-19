@@ -1,5 +1,10 @@
 from node import Node
 
+
+def get_indexes(x, xs): return [i for (
+    y, i) in zip(xs, range(len(xs))) if x == y]
+
+
 def createDeliveryTrees(teams, team_index):
     child = []
 
@@ -17,16 +22,17 @@ def createDeliveryTrees(teams, team_index):
                 child.append(node)
 
     if(team_index == 2):
-        return child    
+        return child
 
     for c in child:
         index = (c.data[1] - 2) + 1
         if(index >= 1 and index <= 2):
             next_level = createDeliveryTrees(teams, index)
-            for nc in next_level:        
+            for nc in next_level:
                 c.appendChild(nc)
 
     return child
+
 
 def createDeliveryPossibilities(teams, possibilities_by_level):
     for l in range(len(possibilities_by_level), 1, -1):
@@ -34,6 +40,7 @@ def createDeliveryPossibilities(teams, possibilities_by_level):
             nodes = teams[l].copy()
             for p2 in nodes:
                 p1.appendChild(p2)
+
 
 def createDeliveryPossibilitiesByLevel(teams, level):
     child = []
@@ -46,21 +53,26 @@ def createDeliveryPossibilitiesByLevel(teams, level):
         child.append(node)
 
     return child
-    
+
+
 def findAllPaths(root, paths, level):
     for i in range(1, level + 2):
-        
-        paths.append(getPath(root, i))
+
+        path = getPath(root, i)
+
+        if (len(get_indexes(path, paths)) == 0):
+            paths.append(path)
 
         for child in root.child:
             findAllPaths(child, paths, level+1)
+
 
 def getPath(child, depth):
     path = []
     aux = child
     i = 0
     while (aux != None and i < depth):
-        path.append(aux)
+        path.append(aux.data)
         aux = aux.parent
         i += 1
     return path
