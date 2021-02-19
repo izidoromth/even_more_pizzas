@@ -1,5 +1,5 @@
 from pizza import Pizza
-from node import Node
+from tree import *
 
 def getFileContent(filename):
     with open(filename) as f:
@@ -48,28 +48,6 @@ def evaluatePizzas(pizzas):
             ing_idx = all_ingredients.index(i)+1
             p.value += all_ingredients[ing_idx]
 
-def createDeliveryTrees(teams, team_index):
-    child = []
-
-    for i in range(team_index, 3):
-        team_type = i + 2
-        for j in range(teams[i], 0, -1):
-            node = Node()
-            node.data = [j, team_type]
-            child.append(node)
-
-    if(team_index == 2):
-        return child    
-
-    for c in child:
-        index = (c.data[1] - 2) + 1
-        if(index >= 1 and index <= 2):
-            next_level = createDeliveryTrees(teams, index)
-            for nc in next_level:        
-                c.appendChild(nc)
-
-    return child
-
 content = getFileContent("a_example")
 teams = getTeams(content) 
 pizzasCount = getPizzasCount(content)
@@ -79,5 +57,8 @@ pizzas = getPizzas(content)
 evaluatePizzas(pizzas)
 
 c = createDeliveryTrees(teams, 0)
+
+paths = []
+findAllPaths(c[0], paths, 0)
 
 a = 0

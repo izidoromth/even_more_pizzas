@@ -7,18 +7,3 @@ class Node:
     def appendChild(self, child):
         child.parent = self
         self.child.append(child)
-
-def findAllPaths(node, paths):
-    if (len(node.child) == 0):
-        paths.append(getPath(node))
-    else:
-        for c in node.child:
-            findAllPaths(c, paths)
-
-def getPath(node):
-    path = []
-    aux = node
-    while (aux != None):
-        path.append(aux)
-        aux = aux.parent
-    return path
