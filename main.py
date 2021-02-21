@@ -1,11 +1,11 @@
-from pizza import Pizza
-from tree import *
-
+class Pizza:
+    def __init__(self):
+        self.value = 0
+        self.ingredients = []
 
 def getFileContent(filename):
     with open(filename) as f:
         return f.readlines()
-
 
 def getPizzas(content):
     p = []
@@ -19,7 +19,6 @@ def getPizzas(content):
         p.append(pizza)
     return p
 
-
 def getTeams(content):
     t = []
     lineSplit = content[0].split()
@@ -27,10 +26,8 @@ def getTeams(content):
         t.append(int(lineSplit[n]))
     return t
 
-
 def getPizzasCount(content):
     return int(content[0].split()[0])
-
 
 def getTeamsCount(teams_list):
     sum = 0
@@ -38,14 +35,13 @@ def getTeamsCount(teams_list):
         sum += n
     return sum
 
-
 def evaluatePizzas(pizzas):
     all_ingredients = []
     for p in pizzas:
         for i in p.ingredients:
             if (i in all_ingredients):
                 ing_idx = all_ingredients.index(i) + 1
-                all_ingredients[ing_idx] = all_ingredients[ing_idx] + 1
+                all_ingredients[ing_idx] += 1
             else:
                 all_ingredients.append(i)
                 all_ingredients.append(1)
@@ -54,58 +50,87 @@ def evaluatePizzas(pizzas):
             ing_idx = all_ingredients.index(i)+1
             p.value += all_ingredients[ing_idx]
 
+def isEven(x):
+    return x % 2 == 0
 
-def findAllDeliveryPaths(trees):
-    paths = []
+def getTeamsToDeliver(teams, num_pizzas):
+    total_members = teams[0]*2 + teams[1]*3 + teams[2]*4
 
-    for root in trees:
-        findTreePaths(root, paths, 0)
+    if(num_pizzas >= total_members):
+        return teams
+    else:
+        if(num_pizzas <= teams[0]*2):
+            if(isEven(num_pizzas)):
+                return [int(num_pizzas/2), 0, 0]
+            elif(teams[1] > 0):
+                return [int(num_pizzas/2)-1, 1,0]
+            else:
+                return [int(num_pizzas/2), 0,0]
+        elif(num_pizzas <= (teams[0]*2 + teams[1]*3)):
+            pizzas_remaining = num_pizzas - teams[0]*2
+            if(pizzas_remaining % 3 == 0):
+                return [teams[0], int(pizzas_remaining/3), 0]
+            elif(teams[2] > 0):
+                return [teams[0] - 1, int(pizzas_remaining/3), 1]
+            else:
+                return [teams[0], int(pizzas_remaining/3), 0]
+        else:
+            pizzas_remaining = num_pizzas - teams[0]*2 - teams[1]*3
+            if(pizzas_remaining % 4 == 0):
+                return [teams[0], teams[1], int(pizzas_remaining/4)]
+            elif(teams[2] > int(pizzas_remaining/4)):
+                if(isEven(num_pizzas)):
+                    return [teams[0] - 1, teams[1], int(pizzas_remaining/4) + 1]
+                else:
+                    return [teams[0], teams[1] - 1, int(pizzas_remaining/4) + 1]
 
-    return paths
+def generateOutput(filename, teams_delivered, deliveries, pizzas):
+    f = open(filename + "_output", "w")
+    f.write(str(teams_delivered) + "\n")
+    for team in deliveries:
+        line = str(team['team_type']) + " "
+        for i in range(0, team['team_type']):
+            line += str(pizzas.index(team['pizzas'][i])) + " "
+        f.write(line + "\n")
+    f.close()
 
+def solve(filename):
+    content = getFileContent(filename)
+    teams = getTeams(content)    
+    pizzas = getPizzas(content)
+    evaluatePizzas(pizzas)
 
-def getBestDeliveryPath(paths, numPizzas):
+    teams_to_deliver = getTeamsToDeliver(teams, getPizzasCount(content))
+
     deliveries = []
+    for i in range(0, 3):
+        for j in range(0, teams_to_deliver[i]):
+            deliveries.append({"team_type": i + 2, "pizzas" : []})
 
-    for path in paths:
-        members = 0
-        teams_count = 0
-        for teams in path:
-            members += teams[0] * teams[1]
-            teams_count += teams[0]
+    pizzas_sorted = pizzas.copy()
+    pizzas_sorted.sort(key=lambda x: x.value)
 
-        if(numPizzas >= members):
-            deliveries.append({
-                "members": members,
-                "teams": teams_count,
-                "path": path
-            })
+    members_receiving = teams_to_deliver[0]*2 + teams_to_deliver[1]*3 + teams_to_deliver[2]*4
+    teams_receiving = teams_to_deliver[0] + teams_to_deliver[1] + teams_to_deliver[2]
 
-    deliveries.append({
-        "members": 5,
-        "teams": 3,
-        "path": []
-    })
+    i = 0
+    deliveries.reverse()
+    for j in range(0, members_receiving):        
 
-    deliveries = [x for x in deliveries if x['members'] == max(
-        deliveries, key=lambda x: x['members'])['members']]
+        while(i < teams_receiving and len(deliveries[i]['pizzas']) >= deliveries[i]['team_type']):
+            i += 1
 
-    return max(deliveries, key=lambda x: x['teams'])
+        if(i == teams_receiving):
+            i = 0
 
+        deliveries[i]['pizzas'].append(pizzas_sorted[j])
 
-content = getFileContent("a_example")
-teams = getTeams(content)
-# teams = [2, 2, 1]
+        i += 1
+    
+    generateOutput(filename, teams_receiving, deliveries, pizzas)
 
-pizzasCount = getPizzasCount(content)
-teamsCount = getTeamsCount(teams)
-
-pizzas = getPizzas(content)
-evaluatePizzas(pizzas)
-
-c = createDeliveryTrees(teams, 0)
-
-paths = findAllDeliveryPaths(c)
-deliv = getBestDeliveryPath(paths, pizzasCount)
-
-a = 0
+solve("a_example")
+solve("b_little_bit_of_everything.in")
+solve("c_many_ingredients.in")
+solve("d_many_pizzas.in")
+solve("e_many_teams.in")
